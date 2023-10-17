@@ -1,47 +1,58 @@
-
-
 export class Tone {
-    context: AudioContext;
-    oscillator: OscillatorNode;
-    gainNode: GainNode;
-    delay: number = 0.04;
-    frequency: number;
+  context: AudioContext;
+  oscillator: OscillatorNode;
+  gainNode: GainNode;
+  delay: number = 0.04;
+  frequency: number = 300;
+  intialized: boolean = false;
 
-    constructor(freq: number, delay: number = 0) {
-        this.context = new AudioContext();
-        this.gainNode = this.context.createGain();
-        this.oscillator = this.context.createOscillator();
-        this.oscillator.connect(this.gainNode);
-        this.gainNode.connect(this.context.destination);
-        this.oscillator.type = "sine";
-        this.oscillator.frequency.value = freq;
-        this.gainNode.gain.value = 0.00001;
-        this.oscillator.start();
-        this.delay = delay;
+  constructor(freq: number, delay: number = 0) {
+    this.context = new AudioContext();
+    this.gainNode = this.context.createGain();
+    this.oscillator = this.context.createOscillator();
+    this.oscillator.connect(this.gainNode);
+    this.gainNode.connect(this.context.destination);
+    this.oscillator.type = "sine";
+    this.oscillator.frequency.value = freq;
+    // this.gainNode.gain.value = 0.00001;
+    this.delay = delay;
+  }
 
-    }
+  stop() {
+    this.gainNode.gain.exponentialRampToValueAtTime(
+      0.00001,
+      this.context.currentTime + 0.04
+    );
+    this.oscillator.stop(this.context.currentTime + this.delay);
+  }
 
-    stop(delay: number = this.delay) {
-        this.gainNode.gain.exponentialRampToValueAtTime(0.00001, this.context.currentTime + 0.04);
-        this.oscillator.stop(this.context.currentTime + this.delay);
-        
-    }
+  async start() {
+    if (this.intialized) return;
+    this.intialized = true;
+    this.oscillator.start(this.context.currentTime + this.delay);
+  }
 
-    async play(time: number = 10){
-        //start oscillator if it has not
+  async play(freq: number = this.frequency, delay: number = 10) {
+    await this.start();
+    this.oscillator.frequency.value = freq;
+    this.gainNode.gain.linearRampToValueAtTime(
+      4,
+      this.context.currentTime + 0.04
+    );
 
-        //set gain to one
-        this.gainNode.gain.linearRampToValueAtTime(.05, this.context.currentTime +0.01);
-        await this.sleep(time);
-        this.pause(time);
-    }
+    await this.sleep(delay);
+    this.pause();
+  }
 
-    private pause(time: number = 10){
-        //set gain to zero
-        this.gainNode.gain.linearRampToValueAtTime(0.001, this.context.currentTime+ 0.01);
-    }
+  private pause() {
+    //set gain to zero
+    this.gainNode.gain.linearRampToValueAtTime(
+      0.00001,
+      this.context.currentTime + 0.13
+    );
+  }
 
-    private sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+  private sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }
