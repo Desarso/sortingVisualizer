@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  position: relative;
+}
+.container .item {
+  border: 1px solid black;
+  background-color: green;
+  width: 5px;
+  display: flex;
+  align-self: flex-end;
+}
+
+.highlight {
+  background-color: red !important;
+}
