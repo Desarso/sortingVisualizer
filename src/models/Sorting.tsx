@@ -1,20 +1,29 @@
 import { Accessor, Setter } from "solid-js";
-import { Tone } from "./Tones";
+import { Wack } from "./Wack";
 
 export class Data {
   data: number[];
+  mapOfTones: Map<number, number> = new Map();
+  tones: number[] = [];
   sorted: boolean = false;
   setData: Setter<number[]>;
   getData: Accessor<number[]>;
   container: HTMLElement | null = document.querySelector(".container");
   items: NodeListOf<Element> | null = document.querySelectorAll(".item");
   setUp: boolean = false;
-  delay: number = 40;
-  tone: Tone = new Tone(100, 0.04);
+  delay: number = 30;
   modifier: number = 60;
+  dataSize = 30;
 
   constructor(setData: Setter<number[]>, getData: Accessor<number[]>) {
-    this.data = this.createDataProxy(Data.generateRandomData(40));
+    let info = Data.generateRandomData(this.dataSize, this.mapOfTones);
+    this.data = this.createDataProxy(info.data);
+    this.mapOfTones = info.mapOfTones;
+    this.tones = Data.generateTones(this.data);
+    console.log("tones",this.tones);
+    console.log(this.mapOfTones);
+    console.log(this.data);
+
     this.setData = setData;
     this.getData = getData;
     this.setData(this.data);
@@ -29,12 +38,18 @@ export class Data {
           // let tone = new Tones(value * 2 + 100, this.delay);
           // console.log(value)
           if (this.items && this.items.length > 0 && this.setUp) {
-            this.items[key]?.classList.add("highlight");
-            this.tone.play(value * 10 + 150, this.delay);
+            this.items[key]?.classList?.add("highlight");
+            //round tone 
+            let index = this.mapOfTones.get(value) || 0;
+
+            Wack.playSound(this.tones[index]);
+
+
+            // this.tone.play(value * 10 + 150, this.delay);
             await this.sleep(this.delay);
           }
           if (this.items && this.items.length > 0 && this.setUp) {
-            this.items[key]?.classList.remove("highlight");
+            this.items[key]?.classList?.remove("highlight");
           }
         })();
 
@@ -53,21 +68,46 @@ export class Data {
     });
   }
 
-  static generateRandomData(size: number) {
+  static generateRandomData(size: number, mapOfTones: Map<number, number>) {
     let data = [];
     for (let i = 1; i < size + 1; i++) {
       data.push(i);
     }
+    data = data.map((value) => {
+      return (value / size) * 50;
+    }); 
+    //map the original data value to it's index before shuffling
+    mapOfTones = new Map(data.map((value, index) => [value, index]));
+
     //shuffle the array
     for (let i = data.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [data[i], data[j]] = [data[j], data[i]];
     }
-    return data;
+    return {data, mapOfTones};
+  }
+
+  static generateTones(data: number[]) {
+   let arrayOfIndexes = data.map((value, index) => {
+      return index;
+    });
+    let maxTone = Wack.maxTone;
+    let minTone = Wack.minTone; 
+
+
+
+
+    let tones = arrayOfIndexes.map((value) => {
+      //map from 40 to 300 no matter the size of the array
+      return (value / data.length) * (maxTone-minTone) + minTone;
+      
+    });
+    return tones;
+
   }
 
   addContainer() {
-    this.container = document.querySelector(".container");
+    this.container = document.querySelector(".mainContainer");
   }
 
   addItems() {
@@ -75,10 +115,20 @@ export class Data {
     let height = window.innerHeight;
     console.log(height);
 
+    //make a map of heights based on the size of the data
+    let minHeight = 20;
+    let maxHeight = 0.4 * height;
+    let mapOfHeights = this.data.map((value, index) => {
+      //make the min 20 and the max 60% of the screen height
+      return (value / this.dataSize) * (maxHeight - minHeight) + minHeight;
+    })
+    console.log("maps",mapOfHeights);
+
+
     for (let i = 0; i < this.data.length; i++) {
       let item = document.createElement("div");
       item.classList.add("item");
-      item.style.height = `${this.data[i] * (0.015 * height)}px`;
+      item.style.height = `${mapOfHeights[i]}px`;
       this.container?.appendChild(item);
     }
 
@@ -97,8 +147,11 @@ export class Data {
   }
 
   async runEntireArray() {
-    for (let i = 0; i < this.data.length; i++) {
+    const size = this.data.length;
+    for (let i = 0; i < size; i++) {
       this.data[i];
+      // let tone = (this.data[i] * 2) + 50;
+      // Wack.playSound(tone);
       await this.sleep(this.delay);
     }
   }
@@ -122,6 +175,9 @@ export class Data {
       for (let i = 1; i < n; i++) {
         if (this.data[i - 1] > this.data[i]) {
           let temp = this.data[i];
+          //play sound
+          let tone = (this.data[i] * 2) + 50;
+          Wack.playSound(tone);
           await this.sleep(this.delay);
           this.data[i] = this.data[i - 1];
           await this.sleep(this.delay);

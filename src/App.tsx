@@ -1,26 +1,25 @@
 import { createSignal, onMount } from "solid-js";
 import { Data } from "./models/Sorting";
 import "./styles.css";
+import {Wack} from "./models/Wack";
 
 function App() {
   const [UIData, setUIData] = createSignal<number[]>([]);
 
   const data = new Data(setUIData, UIData);
   const [blocked, setBlocked] = createSignal<boolean>(false);
-  // let tone = new Tone(100, 0.04);
-
-  // const [tones, setTones] = createSignal<Tone[]>([]);
 
   onMount(() => {
     console.log("UIData", UIData()[1]);
     data.addContainer();
     data.addItems();
+    window.wack = Wack;
   });
 
   return (
     <>
       <div class="outterContainer">
-        <div class="container"></div>
+        <div class="mainContainer"></div>
         <div class="container">
           <button
             class={`${blocked() ? "blocked" : ""}`}
