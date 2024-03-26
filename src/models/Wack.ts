@@ -1,7 +1,7 @@
 
 import wack from "../tunes/pop.ogg";
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioContext = new (window.AudioContext)();
 
 
 function loadAudioFile(url: any, tone = 100) {
@@ -16,7 +16,7 @@ function loadAudioFile(url: any, tone = 100) {
     request.responseType = 'arraybuffer';
 
 
-    request.onload = function(event) {
+    request.onload = function() {
         const audioData = request.response;
         audioContext.decodeAudioData(audioData, function(buffer) {
             const source = audioContext.createBufferSource();
@@ -58,7 +58,7 @@ let id = 0;
 export class Wack{
 
     id : any;
-    lastTimePlayed : any = 0;
+    static lastTimePlayed : any = 0;
     static maxTone = 100;
     static minTone = 50;
 
@@ -85,7 +85,7 @@ export class Wack{
         clearInterval(id);
     }
 
-    async sleep(ms) {
+    async sleep(ms: any) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }

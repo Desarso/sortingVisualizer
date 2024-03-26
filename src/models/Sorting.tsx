@@ -88,7 +88,7 @@ export class Data {
   }
 
   static generateTones(data: number[]) {
-   let arrayOfIndexes = data.map((value, index) => {
+   let arrayOfIndexes = data.map((_value, index) => {
       return index;
     });
     let maxTone = Wack.maxTone;
@@ -118,7 +118,7 @@ export class Data {
     //make a map of heights based on the size of the data
     let minHeight = 20;
     let maxHeight = 0.4 * height;
-    let mapOfHeights = this.data.map((value, index) => {
+    let mapOfHeights = this.data.map((value) => {
       //make the min 20 and the max 60% of the screen height
       return (value / this.dataSize) * (maxHeight - minHeight) + minHeight;
     })

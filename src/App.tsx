@@ -2,8 +2,15 @@ import { createSignal, onMount } from "solid-js";
 import { Data } from "./models/Sorting";
 import "./styles.css";
 import {Wack} from "./models/Wack";
+declare global {
+  interface Window {
+    wack: typeof Wack;
+  }
+}
 
 function App() {
+ 
+
   const [UIData, setUIData] = createSignal<number[]>([]);
 
   const data = new Data(setUIData, UIData);
