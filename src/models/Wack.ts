@@ -1,7 +1,14 @@
 
 import wack from "../tunes/pop.ogg";
 
-const audioContext = new (window.AudioContext)();
+declare global {
+    interface Window {
+        AudioContext: any;
+        webkitAudioContext: any;
+    }
+  }
+
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 
 function loadAudioFile(url: any, tone = 100) {
@@ -18,7 +25,7 @@ function loadAudioFile(url: any, tone = 100) {
 
     request.onload = function() {
         const audioData = request.response;
-        audioContext.decodeAudioData(audioData, function(buffer) {
+        audioContext.decodeAudioData(audioData, function(buffer: any) {
             const source = audioContext.createBufferSource();
             source.buffer = buffer;
 
@@ -29,7 +36,7 @@ function loadAudioFile(url: any, tone = 100) {
             gainNode.connect(audioContext.destination);
 
             source.start();
-        }, function(error) {
+        }, function(error: any) {
             console.error('decodeAudioData error', error);
         });
     };
