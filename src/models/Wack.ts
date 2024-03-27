@@ -43,23 +43,13 @@ function loadAudioFile(url: any, tone = 100) {
 }
 
 
-// function playSound() {
-//     const source = audioContext.createBufferSource();
-//     source.buffer = buffer;
-
-//     source.connect(audioContext.destination);
-
-//     source.start();
-// }
-
-// loadAudioFile('../tunes/wack.mp3');
 let id = 0;
 
 export class Wack{
 
     id : any;
     static lastTimePlayed : any = 0;
-    static maxTone = 100;
+    static maxTone = 250;
     static minTone = 50;
 
     static playSound(tone = 100){
